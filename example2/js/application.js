@@ -20,9 +20,6 @@ class Book{
 	}
 
 	updateProperties(obj){
-		for(let i = 0; i < Book.getFields().length; i++){
-
-		}
 		this.id = obj.id;
 		this.author = obj.author;
 		this.title = obj.title;
@@ -58,9 +55,29 @@ class BooksTable{
 		this.tableBodyElement = document.createElement('TBODY');
 		this.tableElement.appendChild(this.tableBodyElement);
 
+		this.buildAddBookBtn();
+	}
+
+	buildAddBookBtn(){
 		// Add book button element
 		this.createBookBtnElement = document.createElement('BUTTON');
 		this.createBookBtnElement.textContent = "Create Book";
+
+		const showCreateBookModalFn = (e) => {
+			const modalContainerEle =
+				document.getElementById('grey-modal-background');
+			modalContainerEle.classList.remove('hidden');
+
+			const createBookForm =
+				new CreateBookForm({
+					action: "#"
+				});
+			createBookForm.render();
+			modalContainerEle.appendChild(createBookForm.formElement);
+		};
+
+		this.createBookBtnElement
+			.addEventListener('click', showCreateBookModalFn);
 	}
 
 	renderHead(){
@@ -97,6 +114,138 @@ class BooksTable{
 		this.containerElement.appendChild(this.createBookBtnElement);
 	}
 
+}
+
+class BaseForm{
+
+	constructor(obj){
+		this.method = obj.method || 'POST';
+		this.action = obj.action || null;
+		this.enctype = obj.enctype || null;
+
+		this.buildDOMElements();
+		this.updateAttributes();
+	}
+
+	buildDOMElements() {
+		this.formElement = document.createElement('FORM');
+
+		this.submitButtonElement = document.createElement('BUTTON');
+		this.submitButtonElement.type = "submit";
+		this.submitButtonElement.textContent = 'Submit';
+	}
+
+	updateAttributes() {
+		this.formElement.method = this.method;
+		this.formElement.action = this.action;
+		if(this.enctype){
+			this.formElement.enctype = this.enctype;
+		}
+	}
+
+	submit(){
+		this.formElement.submit();
+	}
+}
+
+class CreateBookForm extends BaseForm{
+
+	constructor(obj){
+		super(obj);
+
+		this.cancelEventFn = () => {
+			const modalContainerEle =
+				document.getElementById("grey-modal-background");
+			modalContainerEle.innerHTML = "";
+			modalContainerEle.classList.add('hidden');
+		};
+
+		this.submitEventFn = e => {
+			e.preventDefault();
+			this.submit();
+		};
+
+		this.updateFormElement();
+		this.updateSubmitButtonElement();
+		this.buildCancelButton();
+	}
+
+	updateFormElement() {
+		this.formElement.name = "create-book";
+		this.formElement.className = "modal";
+	}
+
+	updateSubmitButtonElement() {
+		this.submitButtonElement.textContent = "Add book";
+		this.submitButtonElement.classList.add('green');
+
+		this.submitButtonElement.addEventListener('click', this.submitEventFn);
+		this.submitButtonElement.addEventListener('keypress', e => {
+			if(document.activeElement === e.target){
+				this.submitEventFn(e);
+			}
+		});
+	}
+
+	buildCancelButton(){
+		this.cancelButtonElement = document.createElement('BUTTON');
+		this.cancelButtonElement.textContent = "Cancel";
+
+		this.cancelButtonElement.addEventListener('click', this.cancelEventFn);
+		this.cancelButtonElement.addEventListener('keypress', e => {
+			if(document.activeElement === e.target){
+				this.cancelEventFn();
+			}
+		});
+	}
+
+	validate(){
+		let isValid = true;
+
+		const formFields =
+			this.formElement.querySelectorAll('input[type="text"]');
+		for(let i = 0; i < formFields.length; i++){
+
+			if(formFields[i].value === ""){
+				isValid = false;
+				if(!formFields[i].classList.contains('error')){
+					formFields[i].classList.add('error');
+				}
+			} else {
+				if(formFields[i].classList.contains('error')){
+					formFields[i].classList.remove('error');
+				}
+			}
+
+		}
+		return isValid;
+	}
+
+	submit(){
+		if(this.validate()){
+			new Book({
+				id: books.length + 2,
+				title: this.formElement.querySelector('input[name="title"]'),
+				author: new Author({name: 'Robert React'}),
+				isbn: "1331-123456-7777"
+			});
+			this.cancelEventFn();
+		}
+	}
+
+	render(){
+		this.formElement.innerHTML = `
+			<label>Title:</label>
+			<input type="text" name="title" value=""/>
+			<label>ISBN:</label>
+			<input type="text" name="isbn" value=""/>
+			<label>Author:</label>
+			<input type="text" name="author.name" value=""/>
+		`;
+
+		this.formElement.appendChild(this.submitButtonElement);
+		this.formElement.appendChild(this.cancelButtonElement);
+	}
 }
 
 function Trait (methods) {

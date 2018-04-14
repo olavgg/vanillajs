@@ -1,0 +1,46 @@
+body{
+	margin: 0;
+	font-size: 16px;
+	color: #444;
+	font-family: Arial, serif;
+}
+
+section{
+	margin: 0 auto;
+	min-width: 500px;
+	max-width: 1000px;
+}
+
+table{
+	width: 100%;
+	border-spacing: 0;
+	text-align: center;
+}
+
+table th{
+	background: #46607b;
+	color: #fff;
+	text-transform: uppercase;
+}
+
+table tbody tr td{
+	border-bottom: 1px #ccc solid;
+	padding: 0.5em 0;
+}
+
+table tbody tr:hover{
+	background: #e4e8ff;
+	cursor: pointer;
+}
+
+button{
+	border: 1px solid #ccc;
+	background: #eee;
+	padding: 0.5em 2em;
+	margin: 1em 0;
+	border-radius: 4px;
+}
+button:hover{
+	background: #e2e2e2;
+	cursor: pointer;
+}

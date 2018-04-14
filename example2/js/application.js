@@ -58,6 +58,7 @@ class BooksTable{
 		this.tableBodyElement = document.createElement('TBODY');
 		this.tableElement.appendChild(this.tableBodyElement);
 
+		// Add book button element
 		this.createBookBtnElement = document.createElement('BUTTON');
 		this.createBookBtnElement.textContent = "Create Book";
 	}
@@ -91,6 +92,8 @@ class BooksTable{
 
 		this.containerElement.innerHTML = "";
 		this.containerElement.appendChild(this.tableElement);
+
+		// Append add book button element to the container
 		this.containerElement.appendChild(this.createBookBtnElement);
 	}
 

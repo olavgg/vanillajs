@@ -11,9 +11,6 @@ class Author{
 		this.name = obj.name;
 	}
 
-	toString(){
-		return `{id: ${this.id}, name: ${this.name}}`;
-	}
 }
 
 class Book{
@@ -23,14 +20,13 @@ class Book{
 	}
 
 	updateProperties(obj){
+		for(let i = 0; i < Book.getFields().length; i++){
+
+		}
 		this.id = obj.id;
 		this.author = obj.author;
 		this.title = obj.title;
 		this.isbn = obj.isbn;
-	}
-
-	toString(){
-		return `{id: ${this.id}, title: ${this.title}}`;
 	}
 
 	static getFields(){
@@ -42,6 +38,7 @@ class Book{
 class BooksTable{
 
 	constructor(obj){
+		this.containerElement = obj.containerElement;
 		this.fields = Book.getFields();
 		this.updateProperties(obj);
 		this.buildDOMElements();
@@ -50,7 +47,6 @@ class BooksTable{
 
 	updateProperties(obj) {
 		this.books = obj.books;
-		this.containerElement = obj.containerElement;
 	}
 
 	buildDOMElements() {
@@ -64,10 +60,6 @@ class BooksTable{
 
 		this.createBookBtnElement = document.createElement('BUTTON');
 		this.createBookBtnElement.textContent = "Create Book";
-	}
-
-	addBook(book){
-		this.books.push(book);
 	}
 
 	renderHead(){
@@ -101,6 +93,7 @@ class BooksTable{
 		this.containerElement.appendChild(this.tableElement);
 		this.containerElement.appendChild(this.createBookBtnElement);
 	}
+
 }
 
 function Trait (methods) {
@@ -109,6 +102,7 @@ function Trait (methods) {
 
 // https://stackoverflow.com/questions/1978770/traits-in-javascript
 Trait.prototype = {
+
 	constructor: Trait,
 
 	uses: function (trait) {
@@ -126,11 +120,14 @@ Trait.prototype = {
 			}
 		}
 	}
+
 };
 
 Trait.unimplemented = function (obj, traitName) {
+
 	if (obj === undefined || traitName === undefined) {
 		throw new Error ("Unimplemented trait property.");
 	}
 	throw new Error (traitName + " is not implemented for " + obj);
+
 };

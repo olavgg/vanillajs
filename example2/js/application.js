@@ -32,6 +32,34 @@ class Book{
 
 }
 
+class BooksCollection{
+
+	constructor(){
+		this.books = [];
+	}
+
+	getBook(id){
+		for(let i = 0; i < this.books.length; i++){
+			if(this.books[i].id === id){
+				return this.books[i];
+			}
+		}
+	}
+
+	addBook(book){
+		this.books.push(book);
+	}
+
+	deleteBook(book){
+		for(let i = 0; i < this.books.length; i++){
+			if(this.books[i] === book){
+				this.books.splice(i, 1);
+				break;
+			}
+		}
+	}
+}
+
 class BooksTable{
 
 	constructor(obj){
@@ -43,7 +71,10 @@ class BooksTable{
 	}
 
 	updateProperties(obj) {
-		this.books = obj.books;
+		this.booksCollection = new BooksCollection();
+		for(let i = 0; i < obj.books.length; i++){
+			this.booksCollection.addBook(obj.books[i]);
+		}
 	}
 
 	buildDOMElements() {
@@ -63,15 +94,13 @@ class BooksTable{
 		this.createBookBtnElement = document.createElement('BUTTON');
 		this.createBookBtnElement.textContent = "Create Book";
 
-		const showCreateBookModalFn = (e) => {
+		const showCreateBookModalFn = () => {
 			const modalContainerEle =
 				document.getElementById('grey-modal-background');
 			modalContainerEle.classList.remove('hidden');
 
 			const createBookForm =
-				new CreateBookForm({
-					action: "#"
-				});
+				new CreateBookFormForTable({}, this.booksCollection);
 			createBookForm.render();
 			modalContainerEle.appendChild(createBookForm.formElement);
 		};
@@ -92,7 +121,7 @@ class BooksTable{
 
 	renderBody(){
 		this.tableBodyElement.innerHTML = `
-			${this.books.map(book => { return `
+			${this.booksCollection.books.map(book => { return `
 				<tr>
 					<td>${book.id}</td>
 					<td>${book.author.name}</td>
@@ -153,7 +182,7 @@ class CreateBookForm extends BaseForm{
 	constructor(obj){
 		super(obj);
 
-		this.cancelEventFn = () => {
+		this.destroyFormFn = () => {
 			const modalContainerEle =
 				document.getElementById("grey-modal-background");
 			modalContainerEle.innerHTML = "";
@@ -191,10 +220,10 @@ class CreateBookForm extends BaseForm{
 		this.cancelButtonElement = document.createElement('BUTTON');
 		this.cancelButtonElement.textContent = "Cancel";
 
-		this.cancelButtonElement.addEventListener('click', this.cancelEventFn);
+		this.cancelButtonElement.addEventListener('click', this.destroyFormFn);
 		this.cancelButtonElement.addEventListener('keypress', e => {
 			if(document.activeElement === e.target){
-				this.cancelEventFn();
+				this.destroyFormFn();
 			}
 		});
 	}
@@ -221,18 +250,6 @@ class CreateBookForm extends BaseForm{
 		return isValid;
 	}
 
-	submit(){
-		if(this.validate()){
-			new Book({
-				id: books.length + 2,
-				title: this.formElement.querySelector('input[name="title"]'),
-				author: new Author({name: 'Robert React'}),
-				isbn: "1331-123456-7777"
-			});
-			this.cancelEventFn();
-		}
-	}
-
 	render(){
 		this.formElement.innerHTML = `
 			<label>Title:</label>
@@ -246,6 +263,30 @@ class CreateBookForm extends BaseForm{
 		this.formElement.appendChild(this.submitButtonElement);
 		this.formElement.appendChild(this.cancelButtonElement);
 	}
+}
+
+class CreateBookFormForTable extends CreateBookForm{
+
+	constructor(obj, booksCollection){
+		super(obj);
+		this.booksCollection = booksCollection;
+	}
+
+	submit(){
+		if(this.validate()){
+			let book = new Book({
+				id: this.booksCollection.length + 2,
+				title: this.formElement.querySelector('input[name="title"]').value,
+				author: new Author({
+					name: this.formElement.querySelector('input[name="author.name"]').value
+				}),
+				isbn: this.formElement.querySelector('input[name="isbn"]').value
+			});
+			this.booksCollection.addBook(book);
+			this.destroyFormFn();
+		}
+	}
+
 }
 
 function Trait (methods) {

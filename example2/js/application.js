@@ -1,5 +1,84 @@
 'use strict';
 
+function Trait (methods) {
+	this.traits = [methods];
+}
+
+// https://stackoverflow.com/questions/1978770/traits-in-javascript
+Trait.prototype = {
+
+	constructor: Trait,
+
+	uses: function (trait) {
+		this.traits = this.traits.concat(trait.traits);
+		return this;
+	},
+
+	useBy: function (obj) {
+		for(let i = 0; i < this.traits.length; ++i) {
+			let methods = this.traits[i];
+			for (let prop in methods) {
+				if (methods.hasOwnProperty(prop)) {
+					obj[prop] = obj[prop] || methods[prop];
+				}
+			}
+		}
+	}
+
+};
+
+/*
+Trait.unimplemented = function (obj, traitName) {
+
+	if (obj === undefined || traitName === undefined) {
+		throw new Error ("Unimplemented trait property.");
+	}
+	throw new Error (traitName + " is not implemented for " + obj);
+
+};*/
+
+const EventSubscriptionTrait = new Trait ({
+
+	changeSubscribers: [],
+
+	/**
+	 * Subscribe for changes
+	 * Add a function you want to be executed whenever this model changes.
+	 *
+	 * @params Function fn
+	 * @return null
+	 */
+	subscribeForChanges: function (fn) {
+		this.changeSubscribers.push(fn);
+	},
+
+	/**
+	 * Unsubscribe from being notified when this model changes.
+	 *
+	 * @params Function fn
+	 * @return null
+	 */
+	unsubscribeChanges: function (fn) {
+		this.changeSubscribers = this.changeSubscribers.filter(
+			function(item){
+				return item !== fn;
+			}
+		);
+	},
+
+	/**
+	 * Notify subscribers
+	 *
+	 * @return null
+	 */
+	notifyChangeSubscribers: function() {
+		for(let i = 0; i < this.changeSubscribers.length; i++){
+			this.changeSubscribers[i]();
+		}
+	}
+
+});
+
 class Author{
 
 	constructor(obj){
@@ -48,6 +127,7 @@ class BooksCollection{
 
 	addBook(book){
 		this.books.push(book);
+		this.notifyChangeSubscribers();
 	}
 
 	deleteBook(book){
@@ -57,8 +137,16 @@ class BooksCollection{
 				break;
 			}
 		}
+		this.notifyChangeSubscribers();
+	}
+
+	updateBook(obj){
+		const book = this.getBook(obj.id);
+		book.updateProperties(obj);
+		this.notifyChangeSubscribers();
 	}
 }
+EventSubscriptionTrait.useBy(BooksCollection.prototype);
 
 class BooksTable{
 
@@ -75,6 +163,9 @@ class BooksTable{
 		for(let i = 0; i < obj.books.length; i++){
 			this.booksCollection.addBook(obj.books[i]);
 		}
+		this.booksCollection.subscribeForChanges(()=>{
+			this.render();
+		});
 	}
 
 	buildDOMElements() {
@@ -110,25 +201,24 @@ class BooksTable{
 	}
 
 	renderHead(){
+		// map() will loop the fields property and create the <th> elements
 		this.tableHeaderElement.innerHTML = `
 			<tr>
-				${this.fields.map(item => {
-					return `<th>${item}</th>`
-				}).join('')}
+				${this.fields.map(item => `<th>${item}</th>`).join('')}
 			</tr>
 		`;
 	}
 
 	renderBody(){
 		this.tableBodyElement.innerHTML = `
-			${this.booksCollection.books.map(book => { return `
+			${this.booksCollection.books.map(book => `
 				<tr>
 					<td>${book.id}</td>
 					<td>${book.author.name}</td>
 					<td>${book.title}</td>
 					<td>${book.isbn}</td>
 				</tr>
-			`}).join('')}
+			`).join('')}
 		`;
 	}
 
@@ -145,9 +235,12 @@ class BooksTable{
 
 }
 
-class BaseForm{
+class BaseFormAbstract{
 
 	constructor(obj){
+		if (new.target === BaseFormAbstract) {
+			throw new TypeError("Cannot construct Abstract instances directly");
+		}
 		this.method = obj.method || 'POST';
 		this.action = obj.action || null;
 		this.enctype = obj.enctype || null;
@@ -177,7 +270,7 @@ class BaseForm{
 	}
 }
 
-class CreateBookForm extends BaseForm{
+class CreateBookForm extends BaseFormAbstract{
 
 	constructor(obj){
 		super(obj);
@@ -288,39 +381,3 @@ class CreateBookFormForTable extends CreateBookForm{
 	}
 
 }
-
-function Trait (methods) {
-	this.traits = [methods];
-}
-
-// https://stackoverflow.com/questions/1978770/traits-in-javascript
-Trait.prototype = {
-
-	constructor: Trait,
-
-	uses: function (trait) {
-		this.traits = this.traits.concat(trait.traits);
-		return this;
-	},
-
-	useBy: function (obj) {
-		for(let i = 0; i < this.traits.length; ++i) {
-			let methods = this.traits[i];
-			for (let prop in methods) {
-				if (methods.hasOwnProperty(prop)) {
-					obj[prop] = obj[prop] || methods[prop];
-				}
-			}
-		}
-	}
-
-};
-
-Trait.unimplemented = function (obj, traitName) {
-
-	if (obj === undefined || traitName === undefined) {
-		throw new Error ("Unimplemented trait property.");
-	}
-	throw new Error (traitName + " is not implemented for " + obj);
-
-};

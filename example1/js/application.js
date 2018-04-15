@@ -60,25 +60,24 @@ class BooksTable{
 	}
 
 	renderHead(){
+		// map() will loop the fields property and create the <th> elements
 		this.tableHeaderElement.innerHTML = `
 			<tr>
-				${this.fields.map(item => {
-					return `<th>${item}</th>`
-				}).join('')}
+				${this.fields.map(item => `<th>${item}</th>`).join('')}
 			</tr>
 		`;
 	}
 
 	renderBody(){
 		this.tableBodyElement.innerHTML = `
-			${this.books.map(book => { return `
+			${this.books.map(book => `
 				<tr>
 					<td>${book.id}</td>
 					<td>${book.author.name}</td>
 					<td>${book.title}</td>
 					<td>${book.isbn}</td>
 				</tr>
-			`}).join('')}
+			`).join('')}
 		`;
 	}
 

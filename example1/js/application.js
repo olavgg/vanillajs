@@ -30,7 +30,7 @@ class Book{
 	}
 
 	static getFields(){
-		return ['id', 'author', 'title', 'isbn'];
+		return ['id', 'title', 'isbn', 'author'];
 	}
 
 }
@@ -70,12 +70,12 @@ class BooksTable{
 
 	renderBody(){
 		this.tableBodyElement.innerHTML = `
-			${this.books.map(book => `
+			${this.booksCollection.books.map(book => `
 				<tr>
 					<td>${book.id}</td>
-					<td>${book.author.name}</td>
 					<td>${book.title}</td>
 					<td>${book.isbn}</td>
+					<td>${book.author.name}</td>
 				</tr>
 			`).join('')}
 		`;

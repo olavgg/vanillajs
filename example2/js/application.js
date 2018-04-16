@@ -1,45 +1,10 @@
 'use strict';
 
-function Trait (methods) {
-	this.traits = [methods];
-}
+class EventSubscription{
 
-// https://stackoverflow.com/questions/1978770/traits-in-javascript
-Trait.prototype = {
-
-	constructor: Trait,
-
-	uses: function (trait) {
-		this.traits = this.traits.concat(trait.traits);
-		return this;
-	},
-
-	useBy: function (obj) {
-		for(let i = 0; i < this.traits.length; ++i) {
-			let methods = this.traits[i];
-			for (let prop in methods) {
-				if (methods.hasOwnProperty(prop)) {
-					obj[prop] = obj[prop] || methods[prop];
-				}
-			}
-		}
+	constructor(){
+		this.subscribers = [];
 	}
-
-};
-
-/*
-Trait.unimplemented = function (obj, traitName) {
-
-	if (obj === undefined || traitName === undefined) {
-		throw new Error ("Unimplemented trait property.");
-	}
-	throw new Error (traitName + " is not implemented for " + obj);
-
-};*/
-
-const EventSubscriptionTrait = new Trait ({
-
-	changeSubscribers: [],
 
 	/**
 	 * Subscribe for changes
@@ -48,9 +13,9 @@ const EventSubscriptionTrait = new Trait ({
 	 * @params Function fn
 	 * @return null
 	 */
-	subscribeForChanges: function (fn) {
-		this.changeSubscribers.push(fn);
-	},
+	subscribe(fn) {
+		this.subscribers.push(fn);
+	}
 
 	/**
 	 * Unsubscribe from being notified when this model changes.
@@ -58,26 +23,26 @@ const EventSubscriptionTrait = new Trait ({
 	 * @params Function fn
 	 * @return null
 	 */
-	unsubscribeChanges: function (fn) {
-		this.changeSubscribers = this.changeSubscribers.filter(
+	unsubscribe(fn) {
+		this.subscribers = this.subscribers.filter(
 			function(item){
 				return item !== fn;
 			}
 		);
-	},
+	}
 
 	/**
 	 * Notify subscribers
 	 *
 	 * @return null
 	 */
-	notifyChangeSubscribers: function() {
-		for(let i = 0; i < this.changeSubscribers.length; i++){
-			this.changeSubscribers[i]();
+	notifySubscribers() {
+		for(let i = 0; i < this.subscribers.length; i++){
+			this.subscribers[i]();
 		}
 	}
 
-});
+}
 
 class Author{
 
@@ -106,15 +71,16 @@ class Book{
 	}
 
 	static getFields(){
-		return ['id', 'author', 'title', 'isbn'];
+		return ['id', 'title', 'isbn', 'author'];
 	}
 
 }
 
-class BooksCollection{
+class BooksCollection extends EventSubscription{
 
-	constructor(){
-		this.books = [];
+	constructor(obj){
+		super();
+		this.books = obj.books || [];
 	}
 
 	getBook(id){
@@ -127,7 +93,7 @@ class BooksCollection{
 
 	addBook(book){
 		this.books.push(book);
-		this.notifyChangeSubscribers();
+		this.notifySubscribers();
 	}
 
 	deleteBook(book){
@@ -137,16 +103,15 @@ class BooksCollection{
 				break;
 			}
 		}
-		this.notifyChangeSubscribers();
+		this.notifySubscribers();
 	}
 
 	updateBook(obj){
 		const book = this.getBook(obj.id);
 		book.updateProperties(obj);
-		this.notifyChangeSubscribers();
+		this.notifySubscribers();
 	}
 }
-EventSubscriptionTrait.useBy(BooksCollection.prototype);
 
 class BooksTable{
 
@@ -159,11 +124,8 @@ class BooksTable{
 	}
 
 	updateProperties(obj) {
-		this.booksCollection = new BooksCollection();
-		for(let i = 0; i < obj.books.length; i++){
-			this.booksCollection.addBook(obj.books[i]);
-		}
-		this.booksCollection.subscribeForChanges(()=>{
+		this.booksCollection = new BooksCollection(obj);
+		this.booksCollection.subscribe(()=>{
 			this.render();
 		});
 	}
@@ -214,9 +176,9 @@ class BooksTable{
 			${this.booksCollection.books.map(book => `
 				<tr>
 					<td>${book.id}</td>
-					<td>${book.author.name}</td>
 					<td>${book.title}</td>
 					<td>${book.isbn}</td>
+					<td>${book.author.name}</td>
 				</tr>
 			`).join('')}
 		`;
@@ -368,7 +330,7 @@ class CreateBookFormForTable extends CreateBookForm{
 	submit(){
 		if(this.validate()){
 			let book = new Book({
-				id: this.booksCollection.length + 2,
+				id: this.booksCollection.books.length + 1,
 				title: this.formElement.querySelector('input[name="title"]').value,
 				author: new Author({
 					name: this.formElement.querySelector('input[name="author.name"]').value

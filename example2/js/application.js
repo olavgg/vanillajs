@@ -119,6 +119,39 @@ class BooksTable{
 		this.containerElement = obj.containerElement;
 		this.fields = Book.getFields();
 		this.updateProperties(obj);
+
+		this.showCreateBookModalFn = () => {
+			const modalContainerEle =
+				document.getElementById('grey-modal-background');
+			modalContainerEle.classList.remove('hidden');
+
+			const createBookForm =
+				new CreateBookFormForTable({}, this.booksCollection);
+			createBookForm.render();
+			modalContainerEle.appendChild(createBookForm.formElement);
+			createBookForm.inputFieldForTitle.focus();
+		};
+
+		this.showEditBookModalFn = event => {
+			const rowElement = event.target.closest('tr');
+			const bookId =
+				Number(rowElement.querySelector('td:first-child').textContent);
+
+			const modalContainerEle =
+				document.getElementById('grey-modal-background');
+			modalContainerEle.classList.remove('hidden');
+
+			const editBookForm =
+				new EditBookFormForTable(
+					{},
+					this.booksCollection,
+					this.booksCollection.getBook(bookId)
+				);
+			editBookForm.render();
+			modalContainerEle.appendChild(editBookForm.formElement);
+			editBookForm.inputFieldForTitle.focus();
+		};
+
 		this.buildDOMElements();
 		this.render();
 	}
@@ -147,19 +180,8 @@ class BooksTable{
 		this.createBookBtnElement = document.createElement('BUTTON');
 		this.createBookBtnElement.textContent = "Create Book";
 
-		const showCreateBookModalFn = () => {
-			const modalContainerEle =
-				document.getElementById('grey-modal-background');
-			modalContainerEle.classList.remove('hidden');
-
-			const createBookForm =
-				new CreateBookFormForTable({}, this.booksCollection);
-			createBookForm.render();
-			modalContainerEle.appendChild(createBookForm.formElement);
-		};
-
 		this.createBookBtnElement
-			.addEventListener('click', showCreateBookModalFn);
+			.addEventListener('click', this.showCreateBookModalFn);
 	}
 
 	renderHead(){
@@ -182,6 +204,11 @@ class BooksTable{
 				</tr>
 			`).join('')}
 		`;
+
+		for(let i = 0; i < this.tableBodyElement.children.length; i++){
+			const rowElement = this.tableBodyElement.children[i];
+			rowElement.addEventListener('click', this.showEditBookModalFn);
+		}
 	}
 
 	render(){
@@ -244,8 +271,8 @@ class CreateBookForm extends BaseFormAbstract{
 			modalContainerEle.classList.add('hidden');
 		};
 
-		this.submitEventFn = e => {
-			e.preventDefault();
+		this.submitEventFn = event => {
+			event.preventDefault();
 			this.submit();
 		};
 
@@ -264,9 +291,9 @@ class CreateBookForm extends BaseFormAbstract{
 		this.submitButtonElement.classList.add('green');
 
 		this.submitButtonElement.addEventListener('click', this.submitEventFn);
-		this.submitButtonElement.addEventListener('keypress', e => {
-			if(document.activeElement === e.target){
-				this.submitEventFn(e);
+		this.submitButtonElement.addEventListener('keypress', event => {
+			if(document.activeElement === event.target && event.keyCode === 27){
+				this.submitEventFn(event);
 			}
 		});
 	}
@@ -276,8 +303,8 @@ class CreateBookForm extends BaseFormAbstract{
 		this.cancelButtonElement.textContent = "Cancel";
 
 		this.cancelButtonElement.addEventListener('click', this.destroyFormFn);
-		this.cancelButtonElement.addEventListener('keypress', e => {
-			if(document.activeElement === e.target){
+		this.cancelButtonElement.addEventListener('keypress', event => {
+			if(document.activeElement === event.target && event.keyCode === 27){
 				this.destroyFormFn();
 			}
 		});
@@ -291,14 +318,25 @@ class CreateBookForm extends BaseFormAbstract{
 		for(let i = 0; i < formFields.length; i++){
 
 			if(formFields[i].value === ""){
+
+				// Focus the first element with error
+				if(isValid){
+					formFields[i].focus();
+				}
+
 				isValid = false;
+
+				// Add error class to input field
 				if(!formFields[i].classList.contains('error')){
 					formFields[i].classList.add('error');
 				}
 			} else {
+
+				// If no error, remove error class if exists
 				if(formFields[i].classList.contains('error')){
 					formFields[i].classList.remove('error');
 				}
+
 			}
 
 		}
@@ -308,15 +346,27 @@ class CreateBookForm extends BaseFormAbstract{
 	render(){
 		this.formElement.innerHTML = `
 			<label>Title:</label>
-			<input type="text" name="title" value=""/>
+			<input type="text" name="title" value="" tabindex="10"/>
 			<label>ISBN:</label>
-			<input type="text" name="isbn" value=""/>
+			<input type="text" name="isbn" value="" tabindex="20"/>
 			<label>Author:</label>
-			<input type="text" name="author.name" value=""/>
+			<input type="text" name="author.name" value="" tabindex="30"/>
 		`;
+
+		this.cancelButtonElement.tabIndex = 100;
+		this.submitButtonElement.tabIndex = 110;
 
 		this.formElement.appendChild(this.submitButtonElement);
 		this.formElement.appendChild(this.cancelButtonElement);
+
+		// assign input elements to this object,
+		// so it is easier to reference them in code
+		this.inputFieldForTitle =
+			this.formElement.querySelector('input[name="title"]');
+		this.inputFieldForAuthor =
+			this.formElement.querySelector('input[name="author.name"]');
+		this.inputFieldForISBN =
+			this.formElement.querySelector('input[name="isbn"]');
 	}
 }
 
@@ -331,15 +381,60 @@ class CreateBookFormForTable extends CreateBookForm{
 		if(this.validate()){
 			let book = new Book({
 				id: this.booksCollection.books.length + 1,
-				title: this.formElement.querySelector('input[name="title"]').value,
+				title: this.inputFieldForTitle.value,
 				author: new Author({
-					name: this.formElement.querySelector('input[name="author.name"]').value
+					name: this.inputFieldForAuthor.value
 				}),
-				isbn: this.formElement.querySelector('input[name="isbn"]').value
+				isbn: this.inputFieldForISBN.value
 			});
 			this.booksCollection.addBook(book);
 			this.destroyFormFn();
 		}
 	}
 
+}
+
+class EditBookFormForTable extends CreateBookFormForTable{
+
+	constructor(obj, booksCollection, book){
+		super(obj, booksCollection);
+		this.book = book;
+
+		this.submitButtonElement.textContent = "Update book";
+		this.buildInputFieldForId();
+	}
+
+	buildInputFieldForId(){
+		this.inputFieldForId = document.createElement('INPUT');
+		this.inputFieldForId.name = "id";
+		this.formElement.appendChild(this.inputFieldForId);
+	}
+
+	bindBookToForm() {
+		this.inputFieldForTitle.value = this.book.title;
+		this.inputFieldForAuthor.value = this.book.author.name;
+		this.inputFieldForISBN.value = this.book.isbn;
+		this.inputFieldForId.value = this.book.id;
+	}
+
+	submit(){
+		if(this.validate()){
+			const bookProperties = {
+				id: Number(this.inputFieldForId.value),
+				title: this.inputFieldForTitle.value,
+				// I just create a new author here for the sake of simplicity
+				author: new Author({
+					name: this.inputFieldForAuthor.value
+				}),
+				isbn: this.inputFieldForISBN.value
+			};
+			this.booksCollection.updateBook(bookProperties);
+			this.destroyFormFn();
+		}
+	}
+
+	render(){
+		super.render();
+		this.bindBookToForm();
+	}
 }

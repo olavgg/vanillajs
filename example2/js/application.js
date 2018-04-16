@@ -113,6 +113,22 @@ class BooksCollection extends EventSubscription{
 	}
 }
 
+const GreyModalElement = function() {
+	const element = document.getElementById('grey-modal-background');
+	return {
+		show: function() {
+			element.classList.remove('hidden');
+		},
+		hide: function() {
+			element.innerHTML = "";
+			element.classList.add('hidden');
+		},
+		appendChild: function(childElement) {
+			element.appendChild(childElement);
+		}
+	}
+}();
+
 class BooksTable{
 
 	constructor(obj){
@@ -121,25 +137,21 @@ class BooksTable{
 		this.updateProperties(obj);
 
 		this.showCreateBookModalFn = () => {
-			const modalContainerEle =
-				document.getElementById('grey-modal-background');
-			modalContainerEle.classList.remove('hidden');
-
 			const createBookForm =
 				new CreateBookFormForTable({}, this.booksCollection);
 			createBookForm.render();
-			modalContainerEle.appendChild(createBookForm.formElement);
+
+			GreyModalElement.appendChild(createBookForm.formElement);
+			GreyModalElement.show();
 			createBookForm.inputFieldForTitle.focus();
 		};
 
 		this.showEditBookModalFn = event => {
+			// This make sure that we always get the row element even if we
+			// click the td element
 			const rowElement = event.target.closest('tr');
 			const bookId =
 				Number(rowElement.querySelector('td:first-child').textContent);
-
-			const modalContainerEle =
-				document.getElementById('grey-modal-background');
-			modalContainerEle.classList.remove('hidden');
 
 			const editBookForm =
 				new EditBookFormForTable(
@@ -148,7 +160,9 @@ class BooksTable{
 					this.booksCollection.getBook(bookId)
 				);
 			editBookForm.render();
-			modalContainerEle.appendChild(editBookForm.formElement);
+
+			GreyModalElement.show();
+			GreyModalElement.appendChild(editBookForm.formElement);
 			editBookForm.inputFieldForTitle.focus();
 		};
 
@@ -265,10 +279,7 @@ class CreateBookForm extends BaseFormAbstract{
 		super(obj);
 
 		this.destroyFormFn = () => {
-			const modalContainerEle =
-				document.getElementById("grey-modal-background");
-			modalContainerEle.innerHTML = "";
-			modalContainerEle.classList.add('hidden');
+			GreyModalElement.hide();
 		};
 
 		this.submitEventFn = event => {

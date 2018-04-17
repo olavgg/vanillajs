@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>List of books</title>
+	<link type="text/css" rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<div id="grey-modal-background" class="hidden"></div>
+
+<section>
+	<h1>Book Administration with Vanilla JS</h1>
+	<div data-container="books-table"></div>
+</section>
+
+<script type="application/javascript" src="js/application.js"></script>
+<script type="application/javascript">
+	let books = [
+		new Book({
+			id: 1,
+			title: 'Horror stories with React',
+			author: new Author({name: 'Alfred Angular'}),
+			isbn: "1111-222222-6666"
+		}),
+		new Book({
+			id: 2,
+			title: 'The Angular Fiasco',
+			author: new Author({name: 'Robert React'}),
+			isbn: "1331-123456-7777"
+		}),
+		new Book({
+			id: 3,
+			title: 'The Vue Skyfall',
+			author: new Author({name: 'Vanessa Vanilla'}),
+			isbn: "1411-987654-6666"
+		}),
+		new Book({
+			id: 4,
+			title: 'jQuery the forgotten gem',
+			author: new Author({name: 'Ivar Explorer'}),
+			isbn: "2111-123789-5678"
+		}),
+		new Book({
+			id: 5,
+			title: 'Angular Reboot 3',
+			author: new Author({name: 'Steven Syntax'}),
+			isbn: "3311-000112-4545"
+		})
+	];
+
+	/*for(let i = 0; i < 90000; i++){
+		books.push(
+			new Book({
+				id: i+6,
+				title: 'The book; ' + i,
+				author: new Author({name: 'Person' + i}),
+				isbn: "3311-000112-00" + i
+			})
+		);
+	}*/
+
+	const bookTables =
+		document.querySelectorAll('[data-container="books-table"]');
+	for(let i = 0; i < bookTables.length; i++){
+		new BooksTable({
+			books: books,
+			containerElement: bookTables[i]
+		});
+	}
+</script>
+</body>
+</html>

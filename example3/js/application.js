@@ -96,6 +96,16 @@ class BooksCollection extends Observable{
 		this.notifySubscribers();
 	}
 
+	deleteBook(book){
+		for(let i = 0; i < this.books.length; i++){
+			if(this.books[i] === book){
+				this.books.splice(i, 1);
+				break;
+			}
+		}
+		this.notifySubscribers();
+	}
+
 	updateBook(obj){
 		const book = this.getBook(obj.id);
 		book.updateProperties(obj);
@@ -290,13 +300,25 @@ class CreateBookForm extends BaseFormAbstract{
 	updateSubmitButtonElement() {
 		this.submitButtonElement.textContent = "Add book";
 		this.submitButtonElement.classList.add('green');
+
 		this.submitButtonElement.addEventListener('click', this.submitEventFn);
+		this.submitButtonElement.addEventListener('keypress', event => {
+			if(document.activeElement === event.target && event.keyCode === 27){
+				this.submitEventFn(event);
+			}
+		});
 	}
 
 	buildCancelButton(){
 		this.cancelButtonElement = document.createElement('BUTTON');
 		this.cancelButtonElement.textContent = "Cancel";
+
 		this.cancelButtonElement.addEventListener('click', this.destroyFormFn);
+		this.cancelButtonElement.addEventListener('keypress', event => {
+			if(document.activeElement === event.target && event.keyCode === 27){
+				this.destroyFormFn();
+			}
+		});
 	}
 
 	validate(){
@@ -305,26 +327,31 @@ class CreateBookForm extends BaseFormAbstract{
 		const formFields =
 			this.formElement.querySelectorAll('input[type="text"]');
 		for(let i = 0; i < formFields.length; i++){
+
 			if(formFields[i].value === ""){
+
+				// Focus the first element with error
+				if(isValid){
+					formFields[i].focus();
+				}
+
 				isValid = false;
+
 				// Add error class to input field
 				if(!formFields[i].classList.contains('error')){
 					formFields[i].classList.add('error');
 				}
 			} else {
+
 				// If no error, remove error class if exists
 				if(formFields[i].classList.contains('error')){
 					formFields[i].classList.remove('error');
 				}
+
 			}
+
 		}
 		return isValid;
-	}
-
-	submit(){
-		if(this.validate()){
-			this.formElement.submit();
-		}
 	}
 
 	render(){
@@ -378,11 +405,10 @@ class CreateBookFormForTable extends CreateBookForm{
 
 }
 
-class EditBookFormForTable extends CreateBookForm{
+class EditBookFormForTable extends CreateBookFormForTable{
 
 	constructor(obj, booksCollection, book){
-		super(obj);
-		this.booksCollection = booksCollection;
+		super(obj, booksCollection);
 		this.book = book;
 
 		this.submitButtonElement.textContent = "Update book";

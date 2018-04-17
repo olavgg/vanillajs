@@ -70,6 +70,9 @@ form.modal{
 form.modal label{
 	display: block;
 }
+form.modal label:nth-child(n+2){
+	margin-top: 0.5em;
+}
 form.modal input{
 	width: 100%;
 	box-sizing: border-box;

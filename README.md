@@ -1,8 +1,20 @@
 ## Structured code with vanilla javascript?
 
-I want to show how easy it is to develop a complex frontend application with just Vanilla JS. The biggest complaint I hear with Vanilla Javascript is lack of structure and it quickly becomes a mess. I don't think so and I have created these examples to show you how organized it can be..
+I want to show how easy it is to develop a complex frontend application with just Vanilla JS. The biggest complaint I hear with Vanilla JS is lack of structure and it quickly becomes a mess. This is rather a team/management problem. Agreeing on how the code should be structured is something that everyone needs to agree on. As a developer you spend a lot of time of reading code, and the code you write should first foremost always be written in a way which is as most helpful as possible for the whole team. Solo developers / solo “rockstars” are those who create a mess.
+
+The example I will show you, is a table with books and authors relation, with dialogs/modals for editing book/author objects. I will use classes, good old design patterns and template literals.
 
 This is a four step guide for Vanilla Javascript programming. 
+
+
+* [First guide is the static webpage.](https://github.com/olavgg/vanillajs/wiki/The-static-website-vanilla-javascript)
+
+* [Second guide, Introduction to state management.](https://github.com/olavgg/vanillajs/wiki/State-management-with-the-observer-pattern)
+
+* [Third guide is managing state with dynamic content.](https://github.com/olavgg/vanillajs/wiki/Add-dynamic-content-and-manage-state-with-vanilla-Javascript)
+
+* [Fourth guide is solving DOM performance issues.](https://github.com/olavgg/vanillajs/wiki/Performance)
+
 
 ## Introduction
 
@@ -17,19 +29,4 @@ For a few years ago a lot of things started to happen in the world of Javascript
 With “Vanilla” or “normal” Javascript however, it is back to simplicity. Direct DOM manipulation with over 20 years old, mature and stable API. [getElementById](https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById) is still one of my favourite methods, though I also use the newer [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) and [querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll) more and more.
 
 I’ve also only recently started to use Ecmascript 6. Mostly because browser compatibilty for it has become good only recently. And I have never been a fan of debugging transpiled code. Very few of my clients demand IE support these days. And I hardly have any trouble debugging transpiled code anymore, so the time to start with ES6 is definitely a good choice these days.
-
-## Is is possible to have structured code when using vanilla JS?
-
-I want to show how easy it is to develop a complex frontend application with just Vanilla JS. The biggest complaint I hear with Vanilla JS is lack of structure and it quickly becomes a mess. This is rather a team/management problem. Agreeing on how the code should be structured is something that everyone needs to agree on. As a developer you spend a lot of time of reading code, and the code you write should first foremost always be written in a way which is as most helpful as possible for the whole team. Solo developers / solo “rockstars” are those who create a mess.
-
-The example I will show you, is a table with books and authors relation, with dialogs/modals for editing book/author objects. I will use classes, good old design patterns and template literals.
-
-This is a three step guide for Vanilla Javascript programming. 
-
-* [First guide is the static webpage.](https://github.com/olavgg/vanillajs/wiki/The-static-website-vanilla-javascript)
-
-* [Second guide, Introduction to state management.](https://github.com/olavgg/vanillajs/wiki/State-management-with-the-observer-pattern)
-
-* [Third guide is managing state with dynamic content.](https://github.com/olavgg/vanillajs/wiki/Add-dynamic-content-and-manage-state-with-vanilla-Javascript)
-
-* [Fourth guide is solving DOM performance issues.](https://github.com/olavgg/vanillajs/wiki/Performance)
+ 

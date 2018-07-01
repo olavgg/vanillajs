@@ -44,22 +44,12 @@ class Observable{
 
 }
 
-class AuthorModel{
+class Author{
 
-	/**
-	 * @param {id: Number, name: String}
-	 * @return AuthorModel
-	 */
 	constructor(obj){
 		this.updateProperties(obj);
 	}
 
-	/**
-	 * Map properties to this instance
-	 *
-	 * @param {id: Number, name: String}
-	 * @return void
-	 */
 	updateProperties(obj){
 		this.id = obj.id;
 		this.name = obj.name;
@@ -67,22 +57,12 @@ class AuthorModel{
 
 }
 
-class BookModel{
+class Book{
 
-	/**
-	 * @param {id: Number, author: String, title: String, isbn: String}
-	 * @return AuthorModel
-	 */
 	constructor(obj){
 		this.updateProperties(obj);
 	}
 
-	/**
-	 * Map properties to this instance
-	 *
-	 * @param {id: Number, author: String, title: String, isbn: String}
-	 * @return void
-	 */
 	updateProperties(obj){
 		this.id = obj.id;
 		this.author = obj.author;
@@ -90,37 +70,19 @@ class BookModel{
 		this.isbn = obj.isbn;
 	}
 
-	/**
-	 * Get a list of properties for this class
-	 *
-	 * @returns {string[]}
-	 */
 	static getFields(){
 		return ['id', 'title', 'isbn', 'author'];
 	}
 
 }
 
-class BookCollectionModel extends Observable{
+class BooksCollection extends Observable{
 
-	/**
-	 * Map properties to this instance
-	 *
-	 * @param [BookModel]
-	 * @return void
-	 */
-	constructor(books){
+	constructor(obj){
 		super();
-		this.books = books;
+		this.books = obj.books || [];
 	}
 
-	/**
-	 * Loop through all registered books and return
-	 * the book object that matches the id.
-	 *
-	 * @params Number id
-	 * @return BookModel
-	 */
 	getBook(id){
 		for(let i = 0; i < this.books.length; i++){
 			if(this.books[i].id === id){
@@ -129,25 +91,21 @@ class BookCollectionModel extends Observable{
 		}
 	}
 
-	/**
-	 * Register a new book to this collection.
-	 * Notify the subscribers.
-	 *
-	 * @params BookModel book
-	 * @return void
-	 */
 	addBook(book){
 		this.books.push(book);
 		this.notifySubscribers();
 	}
 
-	/**
-	 * Update a book object.
-	 * Notify the subscribers.
-	 *
-	 * @params Object obj
-	 * @return void
-	 */
+	deleteBook(book){
+		for(let i = 0; i < this.books.length; i++){
+			if(this.books[i] === book){
+				this.books.splice(i, 1);
+				break;
+			}
+		}
+		this.notifySubscribers();
+	}
+
 	updateBook(obj){
 		const book = this.getBook(obj.id);
 		book.updateProperties(obj);
@@ -155,60 +113,32 @@ class BookCollectionModel extends Observable{
 	}
 }
 
-/**
- * GreyModalElement is a singleton
- */
 const GreyModalElement = function() {
 	const element = document.getElementById('grey-modal-background');
 	return {
-
-		/**
-		 * Show the modal.
-		 *
-		 * @return void
-		 */
 		show: function() {
 			element.classList.remove('hidden');
 		},
-
-		/**
-		 * Hide the modal and clear its content.
-		 *
-		 * @return void
-		 */
 		hide: function() {
 			element.innerHTML = "";
 			element.classList.add('hidden');
 		},
-
-		/**
-		 * Append child element to the modal.
-		 *
-		 * @return void
-		 */
 		appendChild: function(childElement) {
 			element.appendChild(childElement);
 		}
 	}
 }();
 
-/**
- * Book table component. We call this a component as its behaviour is a
- * reusable component for web composition.
- *
- * With this design it is also easier to map it over to a true web-component,
- * which will hopefully soon become a standard in all the major browsers.
- */
-class BookTableComponent{
+class BooksTable{
 
 	constructor(obj){
 		this.containerElement = obj.containerElement;
-		this.fields = BookModel.getFields();
+		this.fields = Book.getFields();
 		this.updateProperties(obj);
 
 		this.showCreateBookModalFn = () => {
 			const createBookForm =
-				new CreateBookFormComponent({}, this.booksCollection);
+				new CreateBookFormForTable({}, this.booksCollection);
 			createBookForm.render();
 
 			GreyModalElement.appendChild(createBookForm.formElement);
@@ -224,7 +154,7 @@ class BookTableComponent{
 				Number(rowElement.querySelector('td:first-child').textContent);
 
 			const editBookForm =
-				new EditBookFormComponent(
+				new EditBookFormForTable(
 					{},
 					this.booksCollection,
 					this.booksCollection.getBook(bookId)
@@ -241,7 +171,7 @@ class BookTableComponent{
 	}
 
 	updateProperties(obj) {
-		this.booksCollection = new BookCollectionModel(obj.books);
+		this.booksCollection = new BooksCollection(obj);
 		this.booksCollection.subscribe(()=>{
 			this.render();
 		});
@@ -256,10 +186,10 @@ class BookTableComponent{
 		this.tableBodyElement = document.createElement('TBODY');
 		this.tableElement.appendChild(this.tableBodyElement);
 
-		this.createAddBookBtn();
+		this.buildAddBookBtn();
 	}
 
-	createAddBookBtn(){
+	buildAddBookBtn(){
 		// Add book button element
 		this.createBookBtnElement = document.createElement('BUTTON');
 		this.createBookBtnElement.textContent = "Create Book";
@@ -308,10 +238,6 @@ class BookTableComponent{
 
 }
 
-/**
- * Abstract class BaseForm
- * This class contains business logic for the form and the submit button.
- */
 class BaseFormAbstract{
 
 	constructor(obj){
@@ -347,17 +273,10 @@ class BaseFormAbstract{
 	}
 }
 
-/**
- * Abstract class BookFormAbstract
- * This class contains business logic for the book form.
- */
-class BookFormAbstract extends BaseFormAbstract{
+class CreateBookForm extends BaseFormAbstract{
 
 	constructor(obj){
 		super(obj);
-		if (new.target === BookFormAbstract) {
-			throw new TypeError("Cannot construct Abstract instances directly");
-		}
 
 		this.destroyFormFn = () => {
 			GreyModalElement.hide();
@@ -381,13 +300,25 @@ class BookFormAbstract extends BaseFormAbstract{
 	updateSubmitButtonElement() {
 		this.submitButtonElement.textContent = "Add book";
 		this.submitButtonElement.classList.add('green');
+
 		this.submitButtonElement.addEventListener('click', this.submitEventFn);
+		this.submitButtonElement.addEventListener('keypress', event => {
+			if(document.activeElement === event.target && event.keyCode === 27){
+				this.submitEventFn(event);
+			}
+		});
 	}
 
 	buildCancelButton(){
 		this.cancelButtonElement = document.createElement('BUTTON');
 		this.cancelButtonElement.textContent = "Cancel";
+
 		this.cancelButtonElement.addEventListener('click', this.destroyFormFn);
+		this.cancelButtonElement.addEventListener('keypress', event => {
+			if(document.activeElement === event.target && event.keyCode === 27){
+				this.destroyFormFn();
+			}
+		});
 	}
 
 	validate(){
@@ -396,26 +327,31 @@ class BookFormAbstract extends BaseFormAbstract{
 		const formFields =
 			this.formElement.querySelectorAll('input[type="text"]');
 		for(let i = 0; i < formFields.length; i++){
+
 			if(formFields[i].value === ""){
+
+				// Focus the first element with error
+				if(isValid){
+					formFields[i].focus();
+				}
+
 				isValid = false;
+
 				// Add error class to input field
 				if(!formFields[i].classList.contains('error')){
 					formFields[i].classList.add('error');
 				}
 			} else {
+
 				// If no error, remove error class if exists
 				if(formFields[i].classList.contains('error')){
 					formFields[i].classList.remove('error');
 				}
+
 			}
+
 		}
 		return isValid;
-	}
-
-	submit(){
-		if(this.validate()){
-			this.formElement.submit();
-		}
 	}
 
 	render(){
@@ -445,11 +381,7 @@ class BookFormAbstract extends BaseFormAbstract{
 	}
 }
 
-/**
- * Create book form component
- * This class contains business logic creating a book.
- */
-class CreateBookFormComponent extends BookFormAbstract{
+class CreateBookFormForTable extends CreateBookForm{
 
 	constructor(obj, booksCollection){
 		super(obj);
@@ -458,10 +390,10 @@ class CreateBookFormComponent extends BookFormAbstract{
 
 	submit(){
 		if(this.validate()){
-			let book = new BookModel({
+			let book = new Book({
 				id: this.booksCollection.books.length + 1,
 				title: this.inputFieldForTitle.value,
-				author: new AuthorModel({
+				author: new Author({
 					name: this.inputFieldForAuthor.value
 				}),
 				isbn: this.inputFieldForISBN.value
@@ -473,15 +405,10 @@ class CreateBookFormComponent extends BookFormAbstract{
 
 }
 
-/**
- * Create book form component
- * This class contains business logic updating a book.
- */
-class EditBookFormComponent extends BookFormAbstract{
+class EditBookFormForTable extends CreateBookFormForTable{
 
 	constructor(obj, booksCollection, book){
-		super(obj);
-		this.booksCollection = booksCollection;
+		super(obj, booksCollection);
 		this.book = book;
 
 		this.submitButtonElement.textContent = "Update book";
@@ -507,7 +434,7 @@ class EditBookFormComponent extends BookFormAbstract{
 				id: Number(this.inputFieldForId.value),
 				title: this.inputFieldForTitle.value,
 				// I just create a new author here for the sake of simplicity
-				author: new AuthorModel({
+				author: new Author({
 					name: this.inputFieldForAuthor.value
 				}),
 				isbn: this.inputFieldForISBN.value

@@ -62,7 +62,7 @@ class AuthorModel{
 	 */
 	updateProperties(obj){
 		this.id = obj.id;
-		this.name = obj.name;
+		if(obj.name) this.name = obj.name;
 	}
 
 }
@@ -85,9 +85,9 @@ class BookModel{
 	 */
 	updateProperties(obj){
 		this.id = obj.id;
-		this.author = obj.author;
-		this.title = obj.title;
-		this.isbn = obj.isbn;
+		if(obj.author) this.author = obj.author;
+		if(obj.title) this.title = obj.title;
+		if(obj.isbn) this.isbn = obj.isbn;
 	}
 
 	/**

@@ -15,8 +15,8 @@
 </section>
 <div>
 	<h4>Write this in console:</h4>
-	<p>bookCollectionInstance.addBook({id: 6, title: "Hello from console", isbn: "1234-34567-789", author: new AuthorModel({id: 6, name: "Peter Pan"})});</p>
-	<p>bookCollectionInstance.updateBook({id: 3, title: "I got updated from the console", isbn: "1234-34567-789", author: new AuthorModel({id: 7, name: "Larry Harry"})});</p>
+	<p>bookCollectionInstance.addBook(new BookModel({id: 6, title: "Hello from console", isbn: "1234-34567-789", author: new AuthorModel({id: 6, name: "Peter Pan"})}));</p>
+	<p>bookCollectionInstance.updateBook({id: 3, title: "I got updated from the console", isbn: "1234-34567-789"});</p>
 </div>
 
 <script type="application/javascript" src="js/application.js"></script>

@@ -54,6 +54,8 @@
 		})
 	]);
 
+	// We add an arrow function that will be executed
+	// each time notifySubscribers() is invoked
 	bookCollectionInstance.subscribe(() => {
 		const bookTable = document.getElementById("book-table");
 		bookTable.innerHTML = `

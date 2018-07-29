@@ -24,11 +24,7 @@ class Observable{
 	 * @return null
 	 */
 	unsubscribe(fn) {
-		this.subscribers = this.subscribers.filter(
-			function(item){
-				return item !== fn;
-			}
-		);
+		this.subscribers = this.subscribers.filter( it => it !== fn );
 	}
 
 	/**
@@ -37,9 +33,7 @@ class Observable{
 	 * @return null
 	 */
 	notifySubscribers() {
-		for(let i = 0; i < this.subscribers.length; i++){
-			this.subscribers[i]();
-		}
+		this.subscribers.forEach( fn => fn() );
 	}
 
 }
@@ -62,7 +56,7 @@ class AuthorModel{
 	 */
 	updateProperties(obj){
 		this.id = obj.id;
-		this.name = obj.name;
+		if(obj.name) this.name = obj.name;
 	}
 
 }
@@ -85,9 +79,9 @@ class BookModel{
 	 */
 	updateProperties(obj){
 		this.id = obj.id;
-		this.author = obj.author;
-		this.title = obj.title;
-		this.isbn = obj.isbn;
+		if(obj.author) this.author = obj.author;
+		if(obj.title) this.title = obj.title;
+		if(obj.isbn) this.isbn = obj.isbn;
 	}
 
 	/**
@@ -122,11 +116,7 @@ class BookCollectionModel extends Observable{
 	 * @return BookModel
 	 */
 	getBook(id){
-		for(let i = 0; i < this.books.length; i++){
-			if(this.books[i].id === id){
-				return this.books[i];
-			}
-		}
+		return this.books.find( it => it.id === id);
 	}
 
 	/**

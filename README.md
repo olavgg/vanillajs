@@ -7,7 +7,7 @@ The example I will show you, is a table with books and authors relation, with di
 This is a four step guide for Vanilla Javascript programming. 
 
 
-* [First guide is the static webpage.](https://github.com/olavgg/vanillajs/wiki/The-static-website-vanilla-javascript)
+* [First guide is the static webpage.](https://github.com/olavgg/vanillajs/wiki/The-static-website-with-vanilla-javascript)
 
 * [Second guide, Introduction to state management.](https://github.com/olavgg/vanillajs/wiki/State-management-with-the-observer-pattern)
 

@@ -1,45 +1,73 @@
 'use strict';
 
-class Author{
+class AuthorModel{
 
+	/**
+	 * @param {id: Number, name: String}
+	 * @return AuthorModel
+	 */
 	constructor(obj){
 		this.updateProperties(obj);
 	}
 
+	/**
+	 * Map properties to this instance
+	 *
+	 * @param {id: Number, name: String}
+	 * @return void
+	 */
 	updateProperties(obj){
 		this.id = obj.id;
-		this.name = obj.name;
+		if(obj.name) this.name = obj.name;
 	}
 
 }
 
-class Book{
+class BookModel{
 
-	constructor(obj){
+	/**
+	 * @param {id: Number, author: String, title: String, isbn: String}
+	 * @return AuthorModel
+	 */
+	constructor(obj) {
 		this.updateProperties(obj);
 	}
 
-	updateProperties(obj){
-		for(let i = 0; i < Book.getFields().length; i++){
-
-		}
+	/**
+	 * Map properties to this instance
+	 *
+	 * @param {id: Number, author: String, title: String, isbn: String}
+	 * @return void
+	 */
+	updateProperties(obj) {
 		this.id = obj.id;
-		this.author = obj.author;
-		this.title = obj.title;
-		this.isbn = obj.isbn;
+		if (obj.author) this.author = obj.author;
+		if (obj.title) this.title = obj.title;
+		if (obj.isbn) this.isbn = obj.isbn;
 	}
 
-	static getFields(){
+	/**
+	 * Get a list of properties for this class
+	 *
+	 * @returns {string[]}
+	 */
+	static getFields() {
 		return ['id', 'title', 'isbn', 'author'];
 	}
-
 }
 
-class BooksTable{
+/**
+ * Book table component. We call this a component as its behaviour is a
+ * reusable component for web composition.
+ *
+ * With this design it is also easier to map it over to a true web-component,
+ * which will hopefully soon become a standard in all the major browsers.
+ */
+class BookTableComponent{
 
 	constructor(obj){
 		this.containerElement = obj.containerElement;
-		this.fields = Book.getFields();
+		this.fields = BookModel.getFields();
 		this.updateProperties(obj);
 		this.buildDOMElements();
 		this.render();
@@ -70,7 +98,7 @@ class BooksTable{
 
 	renderBody(){
 		this.tableBodyElement.innerHTML = `
-			${this.booksCollection.books.map(book => `
+			${this.books.map(book => `
 				<tr>
 					<td>${book.id}</td>
 					<td>${book.title}</td>

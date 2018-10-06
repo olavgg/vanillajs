@@ -299,10 +299,10 @@ class BookTableComponent{
 }
 
 /**
- * Abstract class BaseForm
- * This class contains business logic for the form and the submit button.
- */
-class BaseFormAbstract{
+	 * Abstract class BaseForm
+	 * This class contains business logic for the form and the submit button.
+	 */
+	class BaseFormAbstract{
 
 	constructor(obj){
 		if (new.target === BaseFormAbstract) {
@@ -364,7 +364,6 @@ class BookFormAbstract extends BaseFormAbstract{
 	}
 
 	updateFormElement() {
-		this.formElement.name = "create-book";
 		this.formElement.className = "modal";
 	}
 

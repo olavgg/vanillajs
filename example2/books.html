@@ -59,6 +59,14 @@
 	bookCollectionInstance.subscribe(() => {
 		const bookTable = document.getElementById("book-table");
 		bookTable.innerHTML = `
+			<thead>
+			<tr>
+				<th>id</th>
+				<th>title</th>
+				<th>isbn</th>
+				<th>author</th>
+			</tr>
+			</thead>
 			${bookCollectionInstance.books.map(book => `
 				<tr>
 					<td>${book.id}</td>
@@ -69,6 +77,9 @@
 			`).join('')}
 		`;
 	});
+
+	// We don't have a render method yet, so we just invoke the arrow function
+	// we just added.
 	bookCollectionInstance.notifySubscribers();
 
 </script>

@@ -28,5 +28,5 @@ For a few years ago a lot of things started to happen in the world of Javascript
 
 With “Vanilla” or “normal” Javascript however, it is back to simplicity. Direct DOM manipulation with over 20 years old, mature and stable API. [getElementById](https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById) is still one of my favourite methods, though I also use the newer [querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector) and [querySelectorAll](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll) more and more.
 
-I’ve also only recently started to use Ecmascript 6. Mostly because browser compatibilty for it has become good only recently. And I have never been a fan of debugging transpiled code. Very few of my clients demand IE support these days. And I hardly have any trouble debugging transpiled code anymore, so the time to start with ES6 is definitely a good choice these days.
+I’ve also only recently started to use Ecmascript 6. Mostly because browser compatibilty for it has become good only recently. And I have never been a fan of debugging transpiled code. Very few of my clients demand IE support these days, so the time to start with ES6 is definitely a good choice today.
  
